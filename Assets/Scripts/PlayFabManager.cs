@@ -22,7 +22,7 @@ public class PlayFabManager : MonoBehaviour
     private void OnLoginSuccess(LoginResult result)
     {
         Debug.Log("Login Success");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
     public void GetUsername(string username)
