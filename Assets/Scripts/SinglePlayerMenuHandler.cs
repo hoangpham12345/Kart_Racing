@@ -13,6 +13,7 @@ public class SinglePlayerMenuHandler : MonoBehaviour
     public GameObject kartText;
     public int mapIndex;
     public int kartIndex;
+    public GameOptions gameOption;
 
     public void Start()
     {
@@ -39,6 +40,7 @@ public class SinglePlayerMenuHandler : MonoBehaviour
         Image img = mapDisplay.GetComponent<Image>();
         img.sprite = mapThumbnails[mapIndex];
         mapText.GetComponent<Text>().text = "Map " + (mapIndex + 1);
+        gameOption.map = mapIndex;
     }
 
 
@@ -61,5 +63,6 @@ public class SinglePlayerMenuHandler : MonoBehaviour
         Image img = kartDisplay.GetComponent<Image>();
         img.sprite = kartThumbnails[kartIndex];
         kartText.GetComponent<Text>().text = "Kart " + (kartIndex + 1);
+        gameOption.kart = kartIndex;
     }
 }

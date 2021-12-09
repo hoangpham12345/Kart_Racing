@@ -3235,7 +3235,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &865828803
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4092,6 +4092,7 @@ MonoBehaviour:
   kartText: {fileID: 1645360019}
   mapIndex: 0
   kartIndex: 0
+  gameOption: {fileID: 11400000, guid: b664160dd8ff89843b1cfb140cbd1c30, type: 2}
 --- !u!1 &1062770768
 GameObject:
   m_ObjectHideFlags: 0
