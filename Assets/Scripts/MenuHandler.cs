@@ -11,6 +11,7 @@ public class MenuHandler : MonoBehaviour
     public GameObject singlePlayerPanel;
     public GameObject multiplayerPanel;
     public GameObject gamePanel;
+    public GameOptions gameOptions;
     private GameObject[] menus;
 
     public void Start()
@@ -20,7 +21,7 @@ public class MenuHandler : MonoBehaviour
 
     public void Playgame()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        SceneManager.LoadScene("map" + gameOptions.map);
     }
 
     public void QuitGame()

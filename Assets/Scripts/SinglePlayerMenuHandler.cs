@@ -39,7 +39,7 @@ public class SinglePlayerMenuHandler : MonoBehaviour
     {
         Image img = mapDisplay.GetComponent<Image>();
         img.sprite = mapThumbnails[mapIndex];
-        mapText.GetComponent<Text>().text = "Map " + (mapIndex + 1);
+        mapText.GetComponent<Text>().text = "Map " + (mapIndex);
         gameOption.map = mapIndex;
     }
 

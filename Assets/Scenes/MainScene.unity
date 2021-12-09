@@ -2989,6 +2989,7 @@ MonoBehaviour:
   singlePlayerPanel: {fileID: 1058913581}
   multiplayerPanel: {fileID: 1932573081}
   gamePanel: {fileID: 865828802}
+  gameOptions: {fileID: 11400000, guid: b664160dd8ff89843b1cfb140cbd1c30, type: 2}
 --- !u!4 &831673859
 Transform:
   m_ObjectHideFlags: 0
@@ -4078,9 +4079,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapThumbnails:
-  - {fileID: 21300000, guid: 1b476ecf5a87df142970585fb8a9c8e5, type: 3}
-  - {fileID: 21300000, guid: 0c22605e0cf00a34b95cd46b5838dbda, type: 3}
-  - {fileID: 21300000, guid: 2fe6c8a65f3c73f499923c07792b80a5, type: 3}
+  - {fileID: 21300000, guid: ae8551e14b34db640bf18f30654cccbd, type: 3}
+  - {fileID: 21300000, guid: d76dd8878c5aa6e42ac6cccc4572c369, type: 3}
+  - {fileID: 21300000, guid: a4d4ded8208f8b5498655dbd34c13f07, type: 3}
   kartThumbnails:
   - {fileID: 21300000, guid: 654fe7747a35fee4288eb5c8a35b7a97, type: 3}
   - {fileID: 21300000, guid: 5e4653078fde1ef4db17f646d2b73a24, type: 3}
@@ -7079,6 +7080,7 @@ MonoBehaviour:
   singlePlayerPanel: {fileID: 0}
   multiplayerPanel: {fileID: 0}
   gamePanel: {fileID: 0}
+  gameOptions: {fileID: 0}
 --- !u!114 &1805909210
 MonoBehaviour:
   m_ObjectHideFlags: 0
