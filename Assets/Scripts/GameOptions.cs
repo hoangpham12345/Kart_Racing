@@ -7,4 +7,9 @@ public class GameOptions : ScriptableObject
 {
     public int map = 0;
     public int kart = 0;
+
+    public string GetMapName()
+    {
+        return "map" + map;
+    }
 }

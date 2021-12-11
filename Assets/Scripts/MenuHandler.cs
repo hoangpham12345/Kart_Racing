@@ -21,7 +21,7 @@ public class MenuHandler : MonoBehaviour
 
     public void Playgame()
     {
-        SceneManager.LoadScene("map" + gameOptions.map);
+        SceneManager.LoadScene(gameOptions.GetMapName());
     }
 
     public void QuitGame()
