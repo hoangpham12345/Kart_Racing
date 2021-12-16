@@ -10,8 +10,6 @@ public class PlayerSkinManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("Material count: " + materials.Length);
-        Debug.Log("Game Option Kart ID: " + gameOptions.kart);
         GetComponent<Renderer>().material = materials[gameOptions.kart];
     }
 

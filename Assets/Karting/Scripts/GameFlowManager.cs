@@ -1,7 +1,7 @@
+using KartGame.KartSystems;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Playables;
-using KartGame.KartSystems;
 using UnityEngine.SceneManagement;
 
 public enum GameState{Play, Won, Lost}
@@ -34,6 +34,8 @@ public class GameFlowManager : MonoBehaviour
     public string loseSceneName = "LoseScene";
     [Tooltip("Prefab for the lose game message")]
     public DisplayMessage loseDisplayMessage;
+
+    //public GameOptions gameOptions;
 
 
     public GameState gameState { get; private set; }
@@ -173,6 +175,12 @@ public class GameFlowManager : MonoBehaviour
             // create a game message
             winDisplayMessage.delayBeforeShowing = delayBeforeWinMessage;
             winDisplayMessage.gameObject.SetActive(true);
+
+            // get the time it took
+            var raceTime = m_TimeManager.TimeSpent;
+            Debug.Log("race time: " + raceTime);
+
+
         }
         else
         {

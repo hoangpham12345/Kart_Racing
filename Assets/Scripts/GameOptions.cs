@@ -7,6 +7,7 @@ public class GameOptions : ScriptableObject
 {
     public int map = 0;
     public int kart = 0;
+    public float lastRaceTime = 0;
 
     public string GetMapName()
     {
