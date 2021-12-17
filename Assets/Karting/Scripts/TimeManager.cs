@@ -8,6 +8,7 @@ public class TimeManager : MonoBehaviour
     public bool IsFinite { get; private set; }
     public float TotalTime { get; private set; }
     public float TimeRemaining { get; private set; }
+    public float TimeSpent { get; private set; }
     public bool IsOver { get; private set; }
 
     private bool raceStarted;
@@ -18,6 +19,7 @@ public class TimeManager : MonoBehaviour
     private void Awake()
     {
         IsFinite = false;
+        TimeSpent = 0;
         TimeRemaining = TotalTime;
     }
 
@@ -53,6 +55,7 @@ public class TimeManager : MonoBehaviour
         if (IsFinite && !IsOver)
         {
             TimeRemaining -= Time.deltaTime;
+            TimeSpent += Time.deltaTime;
             if (TimeRemaining <= 0)
             {
                 TimeRemaining = 0;
