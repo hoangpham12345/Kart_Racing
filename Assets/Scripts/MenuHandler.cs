@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Photon;
+using Photon.Pun;
+using Photon.Realtime;
 
 public class MenuHandler : MonoBehaviour
 {
@@ -32,6 +35,10 @@ public class MenuHandler : MonoBehaviour
 
     public void ToMainMenu()
     {
+        if (!PhotonNetwork.IsConnected) { 
+            PhotonManager pManager = GameObject.Find("PhotonManager").GetComponent<PhotonManager>();
+            pManager.DisconnectFromPhoton();
+        }
         SwitchToMenu(mainMenu);
     }
 
@@ -47,6 +54,11 @@ public class MenuHandler : MonoBehaviour
 
     public void ToSinglePlayer()
     {
+        if (PhotonNetwork.IsConnected)
+        {
+            PhotonManager pManager = GameObject.Find("PhotonManager").GetComponent<PhotonManager>();
+            pManager.DisconnectFromPhoton();
+        }
         OpenGamePanel();
         singlePlayerPanel.SetActive(true);
         multiplayerPanel.SetActive(false);
@@ -54,6 +66,11 @@ public class MenuHandler : MonoBehaviour
 
     public void ToMultiplayer()
     {
+        if (!PhotonNetwork.IsConnected)
+        {
+            PlayFabManager pfManager = GameObject.Find("PlayFabManager").GetComponent<PlayFabManager>();
+            pfManager.ConnectToPhoton();
+        }
         OpenGamePanel();
         multiplayerPanel.SetActive(true);
         singlePlayerPanel.SetActive(false);
