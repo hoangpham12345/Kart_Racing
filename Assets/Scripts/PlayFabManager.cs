@@ -6,6 +6,7 @@ using PlayFab;
 using PlayFab.ClientModels;
 using Photon.Pun;
 using Photon.Realtime;
+using System;
 
 public class PlayFabManager : MonoBehaviour
 {
@@ -74,7 +75,14 @@ public class PlayFabManager : MonoBehaviour
 
             GetPhotonAuthenticationTokenRequest photonRequest = new GetPhotonAuthenticationTokenRequest();
             photonRequest.PhotonApplicationId = PhotonNetwork.PhotonServerSettings.AppSettings.AppIdRealtime;
-            PlayFabClientAPI.GetPhotonAuthenticationToken(photonRequest, AuthWithPhoton, OnPlayFabError);
+            try
+            {
+                PlayFabClientAPI.GetPhotonAuthenticationToken(photonRequest, AuthWithPhoton, OnPlayFabError);
+            }
+            catch
+            {
+                Debug.Log("Could not get authentication token, please log in!");
+            }
         }
     }
 
