@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 using Photon;
 using Photon.Pun;
 using Photon.Realtime;
@@ -14,8 +15,6 @@ public class MenuHandler : MonoBehaviour
     public GameObject singlePlayerPanel;
     public GameObject multiplayerPanel;
     public GameObject gamePanel;
-    public GameObject multiplayerLobby;
-    public GameObject multiplayerRoom;
     public GameOptions gameOptions;
     private GameObject[] menus;
 
@@ -103,15 +102,4 @@ public class MenuHandler : MonoBehaviour
         gamePanel.SetActive(false);
     }
 
-    public void SwitchToMultiplayerRoom(string roomID)
-    {
-        multiplayerLobby.SetActive(false);
-        multiplayerRoom.SetActive(true);
-    }
-
-    public void BackToLobby()
-    {
-        multiplayerLobby.SetActive(true);
-        multiplayerRoom.SetActive(false);
-    }
 }
