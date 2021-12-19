@@ -14,6 +14,8 @@ public class MenuHandler : MonoBehaviour
     public GameObject singlePlayerPanel;
     public GameObject multiplayerPanel;
     public GameObject gamePanel;
+    public GameObject multiplayerLobby;
+    public GameObject multiplayerRoom;
     public GameOptions gameOptions;
     private GameObject[] menus;
 
@@ -76,6 +78,11 @@ public class MenuHandler : MonoBehaviour
         singlePlayerPanel.SetActive(false);
     }
 
+    public void DisplayLobby(Dictionary<string, RoomInfo> roomList)
+    {
+        // We will do this in the future
+    }
+
     public void OpenGamePanel()
     {
         gamePanel.SetActive(true);
@@ -96,5 +103,15 @@ public class MenuHandler : MonoBehaviour
         gamePanel.SetActive(false);
     }
 
+    public void SwitchToMultiplayerRoom(string roomID)
+    {
+        multiplayerLobby.SetActive(false);
+        multiplayerRoom.SetActive(true);
+    }
 
+    public void BackToLobby()
+    {
+        multiplayerLobby.SetActive(true);
+        multiplayerRoom.SetActive(false);
+    }
 }
