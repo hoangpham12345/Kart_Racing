@@ -11,9 +11,10 @@ using System;
 public class PlayFabManager : MonoBehaviour
 {
     #region Variables
-    private string _username;
-    private string _password;
-    private string _playFabPlayerIdCache;
+    private string username;
+    private string password;
+    private string email; 
+    private string playFabPlayerIdCache;
     #endregion
 
     //Singeleton Implementation
@@ -43,25 +44,40 @@ public class PlayFabManager : MonoBehaviour
     #region PlayFab Authentication
     public void PlayFabLogin()
     {
-        var request = new LoginWithPlayFabRequest { Username = _username, Password = _password};
+        var request = new LoginWithPlayFabRequest { Username = username, Password = password};
         PlayFabClientAPI.LoginWithPlayFab(request, OnLoginSuccess, OnPlayFabError);
     }
 
     private void OnLoginSuccess(LoginResult result)
     {
         Debug.Log("Login Success");
-        _playFabPlayerIdCache = result.PlayFabId;
+        playFabPlayerIdCache = result.PlayFabId;
         SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
+    }
+
+    public void PlayFabSignUp()
+    {
+        var request = new RegisterPlayFabUserRequest { Username = username, Email = email, Password = password };
+        PlayFabClientAPI.RegisterPlayFabUser(request, OnSignUpSuccess, OnPlayFabError);
+    }
+    private void OnSignUpSuccess(RegisterPlayFabUserResult result)
+    {
+        Debug.Log("Sign-up Success. Your ID is " + result.PlayFabId);
     }
 
     public void SetUsername(string username)
     {
-        _username = username;
+        this.username = username;
+    }
+
+    public void SetEmail(string email)
+    {
+        this.email = email;
     }
 
     public void SetPassword(string password)
     {
-        _password = password;
+        this.password = password;
     }
 
     #endregion
@@ -91,10 +107,10 @@ public class PlayFabManager : MonoBehaviour
         Debug.Log("Photon token acquired: " + result.PhotonCustomAuthenticationToken + "  Authentication complete.");
         var customAuth = new AuthenticationValues { AuthType = CustomAuthenticationType.Custom };
 
-        customAuth.AddAuthParameter("username", _playFabPlayerIdCache);
+        customAuth.AddAuthParameter("username", playFabPlayerIdCache);
         customAuth.AddAuthParameter("token", result.PhotonCustomAuthenticationToken);
         PhotonNetwork.AuthValues = customAuth;
-        PhotonManager.ConnectToPhotonService(_username);
+        PhotonManager.ConnectToPhotonService(username);
     }
     #endregion
 
