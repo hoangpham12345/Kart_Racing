@@ -14,13 +14,15 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     [SerializeField]
     private byte maxPlayers = 4;
 
-    public TMP_Text roomMessageInputField;
+    public string roomMessage;
 
     private TypedLobby customLobby = new TypedLobby("customLobby", LobbyType.Default);
 
     private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
 
-    public TMP_Text roomInfo;
+    public GameObject multiplayerLobby;
+    public GameObject multiplayerRoom;
+    public string roomInfo;
 
     private void Awake()
     {
@@ -78,6 +80,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     public void JoinLobby()
     {
+        Debug.Log("Try to join the lobby");
         PhotonNetwork.JoinLobby(customLobby);
     }
 
@@ -99,6 +102,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinedLobby()
     {
+        Debug.Log("Joined lobby");
         cachedRoomList.Clear();
     }
 
@@ -119,9 +123,12 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     #endregion
 
     #region Room manupulation
+    public void SetRoomMessage(string roomMessage)
+    {
+        this.roomMessage = roomMessage;
+    }
     public void CreateNewRoom()
     {
-        string roomMessage = roomMessageInputField.text;
         if (string.IsNullOrEmpty(roomMessage))
         {
             // default roomMessage
@@ -139,6 +146,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         roomOptions.CustomRoomPropertiesForLobby = roomPropsInLobby;
 
         PhotonNetwork.CreateRoom(roomID, roomOptions);
+        roomMessage = "";
     }
 
     public void JoinRandomRoom()
@@ -154,7 +162,8 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         Debug.Log(PhotonNetwork.LocalPlayer.NickName + "joined to " + PhotonNetwork.CurrentRoom.Name);
-        roomInfo.text = "Room ID:" + PhotonNetwork.CurrentRoom.Name + "\t" + "Players:" + PhotonNetwork.CurrentRoom.PlayerCount + "/" + PhotonNetwork.CurrentRoom.MaxPlayers;
+        roomInfo = "Room ID:" + PhotonNetwork.CurrentRoom.Name + "   " + "Players:" + PhotonNetwork.CurrentRoom.PlayerCount + "/" + PhotonNetwork.CurrentRoom.MaxPlayers;
+        SwitchToMultiplayerRoom(roomInfo);
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)
@@ -173,5 +182,38 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     {
         Debug.Log(message);
     }
+
     #endregion
+
+    #region Multiplayer panels manipulation
+    public void SwitchToMultiplayerRoom(string roomInfo)
+    {
+        multiplayerLobby.SetActive(false);
+        multiplayerRoom.SetActive(true);
+        GameObject roomTitleGO = GetChildWithName(multiplayerRoom, "RoomTitle");
+        TMP_Text roomTitle = roomTitleGO.GetComponent<TMP_Text>();
+        roomTitle.text = roomInfo;
+    }
+
+    public void BackToLobby()
+    {
+        multiplayerLobby.SetActive(true);
+        multiplayerRoom.SetActive(false);
+        PhotonNetwork.LeaveRoom();
+    }
+
+    #endregion
+    GameObject GetChildWithName(GameObject obj, string name)
+    {
+        Transform trans = obj.transform;
+        Transform childTrans = trans.Find(name);
+        if (childTrans != null)
+        {
+            return childTrans.gameObject;
+        }
+        else
+        {
+            return null;
+        }
+    }
 }
