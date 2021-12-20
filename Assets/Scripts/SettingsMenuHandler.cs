@@ -49,7 +49,7 @@ public class SettingsMenuHandler : MonoBehaviour
   public void SetVolume(float volume)
   {
     // Normally with Unity mixer, human ear can get the sound greater than -40dB. Therefore, we will get the value from 0.0001 to 1 and modify them to get the value from -40dB to 0dB
-    audioMixer.SetFloat("volume", Mathf.Log10(volume) * 20);
+    audioMixer.SetFloat("MasterVolume", Mathf.Log10(volume) * 20);
   }
 
   public void SetQuality(int qualityIndex)
