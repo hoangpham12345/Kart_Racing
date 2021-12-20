@@ -14,15 +14,26 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     [SerializeField]
     private byte maxPlayers = 4;
 
-    public string roomMessage;
+    private string roomMessage;
+    private string roomID;
 
     private TypedLobby customLobby = new TypedLobby("customLobby", LobbyType.Default);
 
     private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
 
+    // Panels to manipulate between lobby and room
     public GameObject multiplayerLobby;
     public GameObject multiplayerRoom;
-    public string roomInfo;
+
+    private string roomInfo;
+
+    // player prefab and its container in the room
+    public GameObject playerListPrefab;
+    public GameObject playerListContainer;
+
+    public GameObject startGameButton;
+
+    private Dictionary<int, GameObject> playerListGameObjects;
 
     private void Awake()
     {
@@ -45,6 +56,11 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     }
 
+    public void Start()
+    {
+        PhotonNetwork.AutomaticallySyncScene = true;
+    }
+
     public static void ConnectToPhotonService(string nickName)
     {
         Debug.Log("Try to connect to Photon service");
@@ -61,6 +77,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         {
             Debug.Log("Try to disconnect from Photon service");
             PhotonNetwork.Disconnect();
+            multiplayerLobby.SetActive(false);
         }
     }
 
@@ -104,6 +121,8 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("Joined lobby");
         cachedRoomList.Clear();
+        multiplayerLobby.SetActive(true);
+        multiplayerRoom.SetActive(false);
     }
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
@@ -127,6 +146,12 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     {
         this.roomMessage = roomMessage;
     }
+
+    public void SetRoomID(string roomID)
+    {
+        this.roomID = roomID;
+    }
+
     public void CreateNewRoom()
     {
         if (string.IsNullOrEmpty(roomMessage))
@@ -149,6 +174,18 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         roomMessage = "";
     }
 
+    public void JoinRoomWithID()
+    {
+        if (string.IsNullOrEmpty(roomID))
+        {
+            Debug.Log("You must enter the roomID");
+        } else
+        {
+            PhotonNetwork.JoinRoom(roomID);
+        }
+
+    }
+
     public void JoinRandomRoom()
     {
         PhotonNetwork.JoinRandomRoom();
@@ -161,9 +198,35 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
-        Debug.Log(PhotonNetwork.LocalPlayer.NickName + "joined to " + PhotonNetwork.CurrentRoom.Name);
-        roomInfo = "Room ID:" + PhotonNetwork.CurrentRoom.Name + "   " + "Players:" + PhotonNetwork.CurrentRoom.PlayerCount + "/" + PhotonNetwork.CurrentRoom.MaxPlayers;
-        SwitchToMultiplayerRoom(roomInfo);
+        Debug.Log(PhotonNetwork.LocalPlayer.NickName + " " + "joined to " + PhotonNetwork.CurrentRoom.Name);
+        roomInfo = "Room ID:" + PhotonNetwork.CurrentRoom.Name + " " + "Players:" + PhotonNetwork.CurrentRoom.PlayerCount + "/" + PhotonNetwork.CurrentRoom.MaxPlayers;
+
+        multiplayerLobby.SetActive(false);
+        multiplayerRoom.SetActive(true);
+
+        // Update room's title
+        GameObject roomTitleGO = GetChildWithName(multiplayerRoom, "RoomTitle");
+        TMP_Text roomTitle = roomTitleGO.GetComponent<TMP_Text>();
+        roomTitle.text = roomInfo;
+
+        // Update Player list
+
+        if (playerListGameObjects == null)
+        {
+            playerListGameObjects = new Dictionary<int, GameObject>();
+        }
+
+        foreach (Player player in PhotonNetwork.PlayerList)
+        {
+            GameObject playerListGameObject = Instantiate(playerListPrefab);
+            playerListGameObject.transform.SetParent(playerListContainer.transform);
+            playerListGameObject.transform.localScale = Vector3.one;
+            playerListGameObject.GetComponent<PlayerListEntryInitializer>().Initialize(player.ActorNumber, player.NickName);
+
+            playerListGameObjects.Add(player.ActorNumber, playerListGameObject);
+        }
+
+        startGameButton.SetActive(false);
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)
@@ -183,27 +246,88 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         Debug.Log(message);
     }
 
-    #endregion
-
-    #region Multiplayer panels manipulation
-    public void SwitchToMultiplayerRoom(string roomInfo)
+    public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        multiplayerLobby.SetActive(false);
-        multiplayerRoom.SetActive(true);
+        // Update room's title
         GameObject roomTitleGO = GetChildWithName(multiplayerRoom, "RoomTitle");
         TMP_Text roomTitle = roomTitleGO.GetComponent<TMP_Text>();
-        roomTitle.text = roomInfo;
+        roomTitle.text = "Room ID:" + PhotonNetwork.CurrentRoom.Name + " " + "Players:" + PhotonNetwork.CurrentRoom.PlayerCount + "/" + PhotonNetwork.CurrentRoom.MaxPlayers;
+
+        // Create new player game object
+        GameObject playerListGameObject = Instantiate(playerListPrefab);
+        playerListGameObject.transform.SetParent(playerListContainer.transform);
+        playerListGameObject.transform.localScale = Vector3.one;
+        playerListGameObject.GetComponent<PlayerListEntryInitializer>().Initialize(newPlayer.ActorNumber, newPlayer.NickName);
+
+        playerListGameObjects.Add(newPlayer.ActorNumber, playerListGameObject);
+        startGameButton.SetActive(CheckPlayersReady());
     }
 
-    public void BackToLobby()
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
     {
+        GameObject playerListGameObject;
+        if (playerListGameObjects.TryGetValue(targetPlayer.ActorNumber, out playerListGameObject))
+        {
+            object isPlayerReady;
+            if (changedProps.TryGetValue(MultiplayerPlayerConfig.PLAYER_READY, out isPlayerReady))
+            {
+
+                playerListGameObject.GetComponent<PlayerListEntryInitializer>().SetPlayerReady((bool)isPlayerReady);
+
+            }
+        }
+        startGameButton.SetActive(CheckPlayersReady());
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        // Update room's title
+        GameObject roomTitleGO = GetChildWithName(multiplayerRoom, "RoomTitle");
+        TMP_Text roomTitle = roomTitleGO.GetComponent<TMP_Text>();
+        roomTitle.text = "Room ID:" + PhotonNetwork.CurrentRoom.Name + " " + "Players:" + PhotonNetwork.CurrentRoom.PlayerCount + "/" + PhotonNetwork.CurrentRoom.MaxPlayers;
+
+        Destroy(playerListGameObjects[otherPlayer.ActorNumber].gameObject);
+        playerListGameObjects.Remove(otherPlayer.ActorNumber);
+        startGameButton.SetActive(CheckPlayersReady());
+    }
+
+    public override void OnLeftRoom()
+    {
+        //BackToLobby();
+
         multiplayerLobby.SetActive(true);
         multiplayerRoom.SetActive(false);
-        PhotonNetwork.LeaveRoom();
+        foreach (GameObject playerListGameObject in playerListGameObjects.Values)
+        {
+            Destroy(playerListGameObject);
+        }
+        playerListGameObjects.Clear();
+        playerListGameObjects = null;
     }
 
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        if (PhotonNetwork.LocalPlayer.ActorNumber == newMasterClient.ActorNumber)
+        {
+            startGameButton.SetActive(CheckPlayersReady());
+        }
+    }
     #endregion
-    GameObject GetChildWithName(GameObject obj, string name)
+
+
+    public void BackToLobby()
+    { 
+        PhotonNetwork.LeaveRoom();
+
+    }
+
+    public void StartMultiplayerGame()
+    {
+        PhotonNetwork.LoadLevel("Map2Multiplayer");
+    }
+
+    #region Supplemental code
+    private GameObject GetChildWithName(GameObject obj, string name)
     {
         Transform trans = obj.transform;
         Transform childTrans = trans.Find(name);
@@ -216,4 +340,33 @@ public class PhotonManager : MonoBehaviourPunCallbacks
             return null;
         }
     }
+
+    private bool CheckPlayersReady()
+    {
+
+        if (!PhotonNetwork.IsMasterClient || PhotonNetwork.CurrentRoom.PlayerCount < 2)
+        {
+            return false;
+        }
+        foreach (Player player in PhotonNetwork.PlayerList)
+        {
+
+            object isPlayerReady;
+            if (player.CustomProperties.TryGetValue(MultiplayerPlayerConfig.PLAYER_READY, out isPlayerReady))
+            {
+
+                if (!(bool)isPlayerReady)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    #endregion
+
 }
