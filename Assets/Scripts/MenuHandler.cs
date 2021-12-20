@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
+using Photon;
+using Photon.Pun;
+using Photon.Realtime;
 
 public class MenuHandler : MonoBehaviour
 {
@@ -21,7 +25,7 @@ public class MenuHandler : MonoBehaviour
 
     public void Playgame()
     {
-        SceneManager.LoadScene("map" + gameOptions.map);
+        SceneManager.LoadScene(gameOptions.GetMapName());
     }
 
     public void QuitGame()
@@ -32,6 +36,10 @@ public class MenuHandler : MonoBehaviour
 
     public void ToMainMenu()
     {
+        if (!PhotonNetwork.IsConnected) { 
+            PhotonManager pManager = GameObject.Find("PhotonManager").GetComponent<PhotonManager>();
+            pManager.DisconnectFromPhoton();
+        }
         SwitchToMenu(mainMenu);
     }
 
@@ -47,6 +55,11 @@ public class MenuHandler : MonoBehaviour
 
     public void ToSinglePlayer()
     {
+        if (PhotonNetwork.IsConnected)
+        {
+            PhotonManager pManager = GameObject.Find("PhotonManager").GetComponent<PhotonManager>();
+            pManager.DisconnectFromPhoton();
+        }
         OpenGamePanel();
         singlePlayerPanel.SetActive(true);
         multiplayerPanel.SetActive(false);
@@ -54,9 +67,19 @@ public class MenuHandler : MonoBehaviour
 
     public void ToMultiplayer()
     {
+        if (!PhotonNetwork.IsConnected)
+        {
+            PlayFabManager pfManager = GameObject.Find("PlayFabManager").GetComponent<PlayFabManager>();
+            pfManager.ConnectToPhoton();
+        }
         OpenGamePanel();
         multiplayerPanel.SetActive(true);
         singlePlayerPanel.SetActive(false);
+    }
+
+    public void DisplayLobby(Dictionary<string, RoomInfo> roomList)
+    {
+        // We will do this in the future
     }
 
     public void OpenGamePanel()
@@ -78,6 +101,5 @@ public class MenuHandler : MonoBehaviour
         menu.SetActive(true);
         gamePanel.SetActive(false);
     }
-
 
 }
